@@ -1,0 +1,35 @@
+## Visual Studio / .NET Framework
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.pdb
+*.log
+*.tmp
+*_i.c
+*_p.c
+*.pch
+*.vspscc
+*.dbmdl
+ipch/
+.idea/
+
+## NuGet
+packages/
+*.nupkg
+!.nuget/packages.config
+
+## Herramientas
+_ReSharper*/
+*.DotSettings.user
+TestResults/
+*.publish.xml
+Thumbs.db
+.DS_Store

@@ -2,7 +2,7 @@
 
 Proyecto integrador de **Autómatas y Lenguajes Formales**: mini compilador para un sistema de gestión de bodega inteligente.
 
-**Tecnologías:** C# (.NET Framework 4.7.2), Windows Forms, MySQL (`MySql.Data`).
+**Tecnologías:** C# (.NET Framework 4.8), Windows Forms, MySQL (`MySql.Data`).
 
 ## Pipeline
 

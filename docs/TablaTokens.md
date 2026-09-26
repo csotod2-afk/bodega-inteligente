@@ -6,7 +6,7 @@
 
 | Tipo de token | Lexema / ejemplo | Expresión regular | Descripción |
 |---|---|---|---|
-| COMANDO | `REGISTRAR`, `ASIGNAR`, `ALMACENAR`, `AUTORIZAR_RETIRO`, `RETIRAR` | `(REGISTRAR\|ASIGNAR\|ALMACENAR\|AUTORIZAR_RETIRO\|RETIRAR)(?![A-Za-z0-9_])` | Palabras reservadas que indican la operación. Sensibles a mayúsculas. No coinciden si siguen más letras (`REGISTRARX` es un ID). |
+| COMANDO | `REGISTRAR`, `ASIGNAR`, `ALMACENAR`, `AUTORIZAR_RETIRO`, `RETIRAR`, `CONSULTAR`, `APAGAR_ALARMA` | `(REGISTRAR\|ASIGNAR\|ALMACENAR\|AUTORIZAR_RETIRO\|RETIRAR\|CONSULTAR\|APAGAR_ALARMA)(?![A-Za-z0-9_])` | Palabras reservadas que indican la operación. Sensibles a mayúsculas. No coinciden si siguen más letras (`REGISTRARX` es un ID). |
 | PARENTESIS_IZQ | `(` | `\(` | Abre la lista de argumentos. |
 | PARENTESIS_DER | `)` | `\)` | Cierra la lista de argumentos. |
 | COMA | `,` | `,` | Separa argumentos. |

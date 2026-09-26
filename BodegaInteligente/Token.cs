@@ -7,7 +7,7 @@ namespace BodegaInteligente
     /// </summary>
     public enum TipoToken
     {
-        COMANDO,          // REGISTRAR, ASIGNAR, ALMACENAR, AUTORIZAR_RETIRO, RETIRAR
+        COMANDO,          // REGISTRAR, ASIGNAR, ALMACENAR, AUTORIZAR_RETIRO, RETIRAR, CONSULTAR, APAGAR_ALARMA
         PARENTESIS_IZQ,   // (
         PARENTESIS_DER,   // )
         COMA,             // ,

@@ -27,7 +27,7 @@ namespace BodegaInteligente
             @"\G(?:" +
             @"(?<SALTO>\n)" +                                   // fin de línea
             @"|(?<ESPACIO>[ \t\r]+)" +                          // espacios, tabs, \r
-            @"|(?<COMANDO>(?:REGISTRAR|ASIGNAR|ALMACENAR|AUTORIZAR_RETIRO|RETIRAR)(?![A-Za-z0-9_]))" +
+            @"|(?<COMANDO>(?:REGISTRAR|ASIGNAR|ALMACENAR|AUTORIZAR_RETIRO|RETIRAR|CONSULTAR|APAGAR_ALARMA)(?![A-Za-z0-9_]))" +
             @"|(?<ID>[A-Za-z][A-Za-z0-9_]*)" +                  // identificador
             @"|(?<NUMERO>[0-9]+)" +                             // entero
             @"|(?<CADENA>""[^""\r\n]*"")" +                     // "texto" cerrado

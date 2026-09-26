@@ -33,3 +33,31 @@ TestResults/
 *.publish.xml
 Thumbs.db
 .DS_Store
+
+## Documentos y archivos que no son código (se comparten por otro medio)
+*.doc
+*.docx
+*.dot
+*.dotx
+*.xls
+*.xlsx
+*.xlsm
+*.csv
+*.ppt
+*.pptx
+*.pdf
+*.odt
+*.ods
+*.odp
+~$*
+*.zip
+*.rar
+*.7z
+
+## Capturas y material de la carpeta docs/ (las imágenes de la app en Properties/Resources no se ven afectadas)
+docs/**/*.png
+docs/**/*.jpg
+docs/**/*.jpeg
+docs/**/*.gif
+docs/**/*.bmp
+docs/pruebas/

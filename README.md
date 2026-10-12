@@ -30,9 +30,14 @@ BodegaInteligente/       Proyecto Windows Forms
   Token.cs               Enum TipoToken y clase Token
   ErrorLexico.cs         Modelo de error léxico
   Lexer.cs               Analizador léxico
-  Form1.cs               Cascarón de la GUI (Selvin)
+  ConexionBD.cs          Acceso a MySQL: probar conexión, leer/agregar/eliminar espacios
+  EspacioEstado.cs       Modelo de un renglón de vista_estado_espacios
+  Form1.cs               GUI: caja de comandos, consola y mapa en vivo (MySQL)
+db/
+  bodega_db.sql          Script de la base de datos (espacios, paquetes, historial, vista)
 docs/
   TablaTokens.md         Tabla de tokens y expresiones regulares
+  DER.md                 Diagrama entidad-relación
 ```
 
 ## Interfaz del Lexer (para Form1 y Parser)
@@ -44,6 +49,18 @@ if (lexer.HayErrores)
     foreach (ErrorLexico err in lexer.Errores)   // Lexema, Mensaje, Fila, Columna
         Console.WriteLine(err);
 ```
+
+## Base de datos
+
+1. Instala MySQL y ejecuta el script: `mysql -u root -p < db/bodega_db.sql`
+2. Ajusta usuario y contraseña en `ConexionBD.CadenaPorDefecto`.
+3. Compila (Visual Studio restaura `MySql.Data` por NuGet) y abre Form1.
+
+El mapa de la derecha se carga en vivo desde la vista `vista_estado_espacios` al abrir
+el formulario; si MySQL no está disponible, no truena: lo avisa en la consola y el
+botón **Actualizar** permite reintentar. **+ Espacio** y **- Espacio** agregan o quitan
+un espacio (solo se puede eliminar uno que esté libre), y un clic en cualquier cuadro
+del mapa muestra su detalle en la consola.
 
 ## Cómo agregar tu archivo
 

@@ -9,12 +9,13 @@ namespace BodegaInteligente
     // mapa visual de la bodega. El mapa se carga en vivo desde MySQL (ConexionBD);
     // si la base de datos no está disponible al abrir, no truena: lo avisa en la
     // consola y deja el botón "Actualizar" para reintentar.
-    // El Parser y el Semántico (entrega final) se conectan donde se indica en
-    // btnAnalizar_Click.
+    // Pipeline completo en btnAnalizar_Click:
+    //   Lexer -> Parser -> Semántico -> ConexionBD -> refresco del mapa.
     public partial class Form1 : Form
     {
         private readonly Lexer _lexer = new Lexer();
         private readonly ConexionBD _bd = new ConexionBD();
+        private readonly Semantico _semantico;
 
         // Cada espacio (cuadro del mapa) por su id, para poder recolorearlo sin
         // reconstruir todo el panel.
@@ -23,6 +24,7 @@ namespace BodegaInteligente
         public Form1()
         {
             InitializeComponent();
+            _semantico = new Semantico(_bd);
 
             // La conexión puede no estar disponible al abrir el formulario (MySQL
             // apagado, credenciales distintas, etc.); por eso va en try/catch y
@@ -40,13 +42,13 @@ namespace BodegaInteligente
         // ---------------- Mapa de la bodega (datos reales de MySQL) ----------------
 
         /// <summary>Lee vista_estado_espacios y reconstruye los cuadros del mapa.</summary>
-        private void CargarMapa()
+        private void CargarMapa(bool mostrarMensaje = true)
         {
             List<EspacioEstado> espacios;
             string mensaje;
             bool ok = _bd.ObtenerEstadoEspacios(out espacios, out mensaje);
 
-            lstConsola.Items.Add(mensaje);
+            if (mostrarMensaje || !ok) lstConsola.Items.Add(mensaje);
             if (!ok) return;
 
             pnlMapa.Controls.Clear();
@@ -120,11 +122,13 @@ namespace BodegaInteligente
 
         // ---------------- Botones ----------------
 
-        // Tokeniza el texto de entrada y muestra tokens y errores léxicos.
+        // Pipeline completo: Lexer -> Parser -> Semántico -> BD -> mapa.
+        // Cada fase solo corre si la anterior terminó sin errores.
         private void btnAnalizar_Click(object sender, EventArgs e)
         {
             lstTokens.Items.Clear();
 
+            // 1) Léxico
             List<Token> tokens = _lexer.Tokenizar(txtEntrada.Text);
 
             foreach (Token t in tokens)
@@ -136,9 +140,57 @@ namespace BodegaInteligente
                     lstConsola.Items.Add(err.ToString());
                 return;
             }
-
+            if (tokens.Count == 0)
+            {
+                lstConsola.Items.Add("Escribe un comando para analizar.");
+                return;
+            }
             lstConsola.Items.Add("Análisis léxico correcto: " + tokens.Count + " token(s).");
-            // Aquí se conecta: new Parser().Analizar(tokens) -> Semantico -> ConexionBD
+
+            // 2) Sintáctico
+            // PUNTO DE CAMBIO: cuando exista el Parser de Manolo (devuelve bool), reemplazar
+            // ParserProvisional por el suyo y leer sus errores igual que aquí.
+            var parser = new ParserProvisional();
+            if (!parser.Validar(tokens))
+            {
+                foreach (string err in parser.Errores)
+                    lstConsola.Items.Add(err);
+                return;
+            }
+            List<Instruccion> instrucciones = Instruccion.Dividir(tokens);
+            lstConsola.Items.Add("Análisis sintáctico correcto: " + instrucciones.Count + " instrucción(es).");
+
+            // 3) Semántico y 4) BD, instrucción por instrucción y en orden.
+            // Si una falla se detiene: las siguientes pueden depender de ella.
+            int ejecutadas = 0;
+            foreach (Instruccion ins in instrucciones)
+            {
+                ResultadoSemantico r = _semantico.Validar(ins);
+                if (!r.Ok)
+                {
+                    lstConsola.Items.Add((r.EsAlarma ? "" : "Error semántico: ") + r.Mensaje);
+                    if (r.EsAlarma)
+                    {
+                        string idPaquete = ins.Argumentos.Count > 0 ? Semantico.Normalizar(ins.Argumentos[0].Valor) : null;
+                        _bd.RegistrarAlarma(idPaquete, r.Mensaje);
+                    }
+                    break;
+                }
+
+                string mensaje;
+                bool ok = _bd.Ejecutar(ins, r.EspacioAsignado, out mensaje);
+                foreach (string linea in (mensaje ?? "").Split('\n')) // CONSULTAR() devuelve varias líneas
+                    lstConsola.Items.Add(linea.TrimEnd('\r'));
+                if (!ok) break;
+                ejecutadas++;
+            }
+
+            if (instrucciones.Count > 1)
+                lstConsola.Items.Add("Se ejecutaron " + ejecutadas + " de " + instrucciones.Count + " instrucciones.");
+
+            // 5) Refresca el mapa con el nuevo estado de la bodega.
+            CargarMapa(false);
+            lstConsola.TopIndex = lstConsola.Items.Count - 1; // baja al último mensaje
         }
 
         // Prueba de conexión a MySQL (SELECT 1).

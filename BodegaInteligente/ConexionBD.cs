@@ -10,7 +10,7 @@ namespace BodegaInteligente
     /// un booleano más un mensaje listo para mostrar en la consola del Form1;
     /// así la GUI nunca se cae si la base de datos no está disponible.
     /// </summary>
-    public class ConexionBD
+    public partial class ConexionBD : IConsultasBodega
     {
         /// <summary>Cadena de conexión por defecto. Ajusta usuario y contraseña a tu MySQL.</summary>
         public const string CadenaPorDefecto =

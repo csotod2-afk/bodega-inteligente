@@ -12,11 +12,11 @@ Form1 (GUI) → Lexer → Parser → Semantico → ConexionBD (MySQL)
 
 El usuario escribe comandos como `REGISTRAR("P01", "FRAGIL", "MEDIANO");`, el Lexer los convierte en tokens, el Parser valida la gramática, el analizador semántico valida las reglas de negocio y `ConexionBD` ejecuta la operación en MySQL.
 
-El pipeline completo ya está ensamblado en `Form1.btnAnalizar_Click`: Lexer → Parser →
-Semántico → `ConexionBD.Ejecutar` → refresco del mapa. Por ahora usa `ParserProvisional`
-(gramática mínima, mismo contrato bool que pide el PDF) mientras se fusiona el Parser real
-de Manolo desde la rama `demo-lexer`; cuando eso pase, solo hay que cambiar esa línea en
-`btnAnalizar_Click` (está marcada con "PUNTO DE CAMBIO").
+El pipeline completo ya está ensamblado en `Form1.btnAnalizar_Click`: Lexer → Parser
+(Manolo) → Semántico → `ConexionBD.Ejecutar` → refresco del mapa. El `Parser.Analizar`
+de Manolo valida una instrucción a la vez, así que `Form1` divide primero la caja de
+comandos en instrucciones (`DividirEnInstrucciones`) y llama al Parser una vez por cada
+una, antes de pasarlas al Semántico.
 
 ## Reparto del equipo
 
@@ -40,7 +40,7 @@ BodegaInteligente/       Proyecto Windows Forms
   ConexionBD.Operaciones.cs  Ejecuta los comandos del lenguaje (REGISTRAR, ASIGNAR, ...) con historial
   EspacioEstado.cs       Modelo de un renglón de vista_estado_espacios
   Instruccion.cs         Agrupa los tokens que el Parser aprobó en instrucciones (comando + argumentos)
-  ParserProvisional.cs   Parser mínimo temporal, mientras se fusiona el Parser real de Manolo
+  Parser.cs              Analizador sintáctico (valida una instrucción a la vez)
   Semantico.cs           Reglas de negocio (ciclo de vida del paquete, asignación automática, alarmas)
   Form1.cs               GUI: caja de comandos, consola, mapa en vivo (MySQL) y el pipeline completo
 db/

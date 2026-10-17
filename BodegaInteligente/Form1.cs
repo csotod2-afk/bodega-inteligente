@@ -10,7 +10,7 @@ namespace BodegaInteligente
     // si la base de datos no está disponible al abrir, no truena: lo avisa en la
     // consola y deja el botón "Actualizar" para reintentar.
     // Pipeline completo en btnAnalizar_Click:
-    //   Lexer -> Parser -> Semántico -> ConexionBD -> refresco del mapa.
+    //   Lexer -> Parser (Manolo) -> Semántico -> ConexionBD -> refresco del mapa.
     public partial class Form1 : Form
     {
         private readonly Lexer _lexer = new Lexer();
@@ -147,16 +147,23 @@ namespace BodegaInteligente
             }
             lstConsola.Items.Add("Análisis léxico correcto: " + tokens.Count + " token(s).");
 
-            // 2) Sintáctico
-            // PUNTO DE CAMBIO: cuando exista el Parser de Manolo (devuelve bool), reemplazar
-            // ParserProvisional por el suyo y leer sus errores igual que aquí.
-            var parser = new ParserProvisional();
-            if (!parser.Validar(tokens))
+            // 2) Sintáctico (Parser de Manolo).
+            // Su Parser.Analizar valida una sola instrucción por llamada, así que la
+            // caja de comandos (que acepta varias instrucciones seguidas) se divide
+            // primero y se valida instrucción por instrucción.
+            bool sintaxisOk = true;
+            foreach (List<Token> fragmento in DividirEnInstrucciones(tokens))
             {
-                foreach (string err in parser.Errores)
-                    lstConsola.Items.Add(err);
-                return;
+                var parser = new Parser();
+                if (!parser.Analizar(fragmento))
+                {
+                    sintaxisOk = false;
+                    foreach (string err in parser.Errores)
+                        lstConsola.Items.Add(err);
+                }
             }
+            if (!sintaxisOk) return;
+
             List<Instruccion> instrucciones = Instruccion.Dividir(tokens);
             lstConsola.Items.Add("Análisis sintáctico correcto: " + instrucciones.Count + " instrucción(es).");
 
@@ -223,6 +230,23 @@ namespace BodegaInteligente
             _bd.EliminarUltimoEspacioLibre(out mensaje);
             lstConsola.Items.Add(mensaje);
             CargarMapa();
+        }
+
+        // Parte la caja de comandos en instrucciones (cada una empieza en un COMANDO)
+        // porque el Parser de Manolo valida una instrucción a la vez.
+        private static IEnumerable<List<Token>> DividirEnInstrucciones(List<Token> tokens)
+        {
+            var actual = new List<Token>();
+            foreach (Token t in tokens)
+            {
+                if (t.Tipo == TipoToken.COMANDO && actual.Count > 0)
+                {
+                    yield return actual;
+                    actual = new List<Token>();
+                }
+                actual.Add(t);
+            }
+            if (actual.Count > 0) yield return actual;
         }
     }
 }

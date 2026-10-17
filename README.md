@@ -12,6 +12,12 @@ Form1 (GUI) → Lexer → Parser → Semantico → ConexionBD (MySQL)
 
 El usuario escribe comandos como `REGISTRAR("P01", "FRAGIL", "MEDIANO");`, el Lexer los convierte en tokens, el Parser valida la gramática, el analizador semántico valida las reglas de negocio y `ConexionBD` ejecuta la operación en MySQL.
 
+El pipeline completo ya está ensamblado en `Form1.btnAnalizar_Click`: Lexer → Parser →
+Semántico → `ConexionBD.Ejecutar` → refresco del mapa. Por ahora usa `ParserProvisional`
+(gramática mínima, mismo contrato bool que pide el PDF) mientras se fusiona el Parser real
+de Manolo desde la rama `demo-lexer`; cuando eso pase, solo hay que cambiar esa línea en
+`btnAnalizar_Click` (está marcada con "PUNTO DE CAMBIO").
+
 ## Reparto del equipo
 
 | Integrante | Responsabilidad |
@@ -31,8 +37,12 @@ BodegaInteligente/       Proyecto Windows Forms
   ErrorLexico.cs         Modelo de error léxico
   Lexer.cs               Analizador léxico
   ConexionBD.cs          Acceso a MySQL: probar conexión, leer/agregar/eliminar espacios
+  ConexionBD.Operaciones.cs  Ejecuta los comandos del lenguaje (REGISTRAR, ASIGNAR, ...) con historial
   EspacioEstado.cs       Modelo de un renglón de vista_estado_espacios
-  Form1.cs               GUI: caja de comandos, consola y mapa en vivo (MySQL)
+  Instruccion.cs         Agrupa los tokens que el Parser aprobó en instrucciones (comando + argumentos)
+  ParserProvisional.cs   Parser mínimo temporal, mientras se fusiona el Parser real de Manolo
+  Semantico.cs           Reglas de negocio (ciclo de vida del paquete, asignación automática, alarmas)
+  Form1.cs               GUI: caja de comandos, consola, mapa en vivo (MySQL) y el pipeline completo
 db/
   bodega_db.sql          Script de la base de datos (espacios, paquetes, historial, vista)
 docs/
